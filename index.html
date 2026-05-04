@@ -3,7 +3,6 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#111827" />
   <title>Kcal Beregner</title>
   <style>
     * { box-sizing: border-box; }
@@ -13,49 +12,31 @@
       background: #f3f4f6;
       color: #111827;
     }
-    .app {
-      max-width: 520px;
-      margin: 0 auto;
-      min-height: 100vh;
-      padding: 20px;
-    }
-    header {
-      padding: 18px 0 12px;
-    }
-    h1 {
-      margin: 0;
-      font-size: 32px;
-      letter-spacing: -0.04em;
-    }
-    .subtitle {
-      margin-top: 6px;
-      color: #6b7280;
-      font-size: 15px;
-    }
+    .app { max-width: 520px; margin: 0 auto; min-height: 100vh; padding: 20px; }
+    h1 { margin: 18px 0 4px; font-size: 34px; letter-spacing: -0.04em; }
+    .subtitle { color: #6b7280; margin-bottom: 18px; }
     .card {
       background: white;
-      border-radius: 22px;
+      border-radius: 24px;
       padding: 18px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      box-shadow: 0 12px 35px rgba(0,0,0,0.08);
       margin-top: 14px;
     }
-    label {
-      display: block;
-      font-weight: 700;
-      font-size: 14px;
-      margin: 14px 0 6px;
-    }
-    input {
+    .goal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat { background: #f9fafb; border-radius: 18px; padding: 14px; }
+    .stat span { color: #6b7280; font-size: 14px; }
+    .stat strong { display: block; font-size: 28px; margin-top: 4px; }
+    .remaining { grid-column: span 2; }
+    label { display: block; font-weight: 800; margin: 14px 0 6px; }
+    input, select {
       width: 100%;
       padding: 14px;
-      border-radius: 14px;
+      border-radius: 15px;
       border: 1px solid #d1d5db;
       font-size: 16px;
-      outline: none;
+      background: white;
     }
-    input:focus {
-      border-color: #111827;
-    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     button {
       width: 100%;
       margin-top: 18px;
@@ -65,152 +46,159 @@
       background: #111827;
       color: white;
       font-size: 17px;
-      font-weight: 800;
-      cursor: pointer;
-    }
-    button:active {
-      transform: scale(0.99);
-    }
-    .total {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      font-size: 18px;
-    }
-    .total strong {
-      font-size: 30px;
-    }
-    .food-list {
-      display: grid;
-      gap: 10px;
-      margin-top: 10px;
+      font-weight: 900;
     }
     .food-item {
       display: flex;
       justify-content: space-between;
-      gap: 12px;
       align-items: center;
-      padding: 14px;
-      border-radius: 16px;
+      gap: 10px;
+      padding: 13px;
       background: #f9fafb;
       border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      margin-top: 10px;
     }
-    .food-name {
-      font-weight: 800;
-    }
-    .food-details {
-      color: #6b7280;
-      font-size: 13px;
-      margin-top: 3px;
-    }
-    .kcal {
-      font-weight: 900;
-      white-space: nowrap;
-    }
-    .delete-btn {
-      width: auto;
-      margin: 0;
-      padding: 8px 10px;
-      border-radius: 10px;
-      background: #fee2e2;
-      color: #991b1b;
-      font-size: 14px;
-    }
-    .empty {
-      color: #6b7280;
-      text-align: center;
-      padding: 18px 8px;
-    }
-    .row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
+    .food-name { font-weight: 900; }
+    .food-details { color: #6b7280; font-size: 13px; margin-top: 3px; }
+    .delete { width: auto; margin: 0; padding: 8px 10px; background: #fee2e2; color: #991b1b; font-size: 13px; }
+    .empty { color: #6b7280; text-align: center; padding: 14px; }
   </style>
 </head>
 <body>
   <main class="app">
-    <header>
-      <h1>Kcal Beregner</h1>
-      <div class="subtitle">Indtast mad, gram og kcal pr. 100 g.</div>
-    </header>
+    <h1>Kcal Beregner</h1>
+    <div class="subtitle">Vælg eller skriv madvare, gram og beregn kcal.</div>
 
-    <section class="card total">
-      <span>I alt i dag</span>
-      <strong><span id="totalKcal">0</span> kcal</strong>
+    <section class="card goal-grid">
+      <div class="stat">
+        <span>Mål</span>
+        <strong>1800</strong>
+        <span>kcal</span>
+      </div>
+      <div class="stat">
+        <span>Spist</span>
+        <strong id="totalKcal">0</strong>
+        <span>kcal</span>
+      </div>
+      <div class="stat remaining">
+        <span>Tilbage i dag</span>
+        <strong id="leftKcal">1800</strong>
+        <span>kcal</span>
+      </div>
     </section>
 
     <section class="card">
-      <label for="foodName">Madvare</label>
-      <input id="foodName" placeholder="Fx kylling, ris eller rugbrød" />
+      <label for="foodSelect">Vælg madvare</label>
+      <select id="foodSelect">
+        <option value="">Vælg fra liste...</option>
+      </select>
+
+      <label for="foodName">Eller skriv selv</label>
+      <input id="foodName" list="foodOptions" placeholder="Fx rugbrød" />
+      <datalist id="foodOptions"></datalist>
 
       <div class="row">
         <div>
           <label for="grams">Gram</label>
-          <input id="grams" type="number" inputmode="decimal" placeholder="200" />
+          <input id="grams" type="number" inputmode="decimal" placeholder="100" />
         </div>
         <div>
           <label for="kcal100">Kcal / 100 g</label>
-          <input id="kcal100" type="number" inputmode="decimal" placeholder="165" />
+          <input id="kcal100" type="number" inputmode="decimal" placeholder="210" />
         </div>
       </div>
 
-      <button id="addBtn">Tilføj madvare</button>
+      <button onclick="addFood()">Tilføj madvare</button>
     </section>
 
     <section class="card">
-      <h2 style="margin: 0 0 8px; font-size: 20px;">Madvarer</h2>
-      <div id="foodList" class="food-list"></div>
+      <h2 style="margin:0 0 8px;">Madvarer</h2>
+      <div id="foodList"></div>
     </section>
   </main>
 
   <script>
+    const DAILY_GOAL = 1800;
+
+    const foodDB = {
+      "rugbrød": 210,
+      "franskbrød": 265,
+      "havregryn": 370,
+      "cornflakes": 370,
+      "ris kogt": 130,
+      "ris ukogt": 360,
+      "pasta kogt": 150,
+      "pasta ukogt": 350,
+      "kartofler": 80,
+      "pommes frites": 310,
+      "kyllingebryst": 165,
+      "hakket oksekød 10%": 200,
+      "laks": 208,
+      "tun i vand": 110,
+      "æg": 155,
+      "mælk letmælk": 46,
+      "skyr naturel": 60,
+      "yoghurt naturel": 65,
+      "ost 45+": 350,
+      "smør": 720,
+      "olie": 900,
+      "banan": 89,
+      "æble": 52,
+      "appelsin": 47,
+      "jordbær": 32,
+      "blåbær": 57,
+      "gulerod": 41,
+      "agurk": 15,
+      "tomat": 18,
+      "broccoli": 35,
+      "avocado": 160,
+      "mandler": 575,
+      "peanuts": 567,
+      "chokolade": 535,
+      "chips": 530,
+      "pizza": 266,
+      "burger": 295,
+      "leverpostej": 280,
+      "spegepølse": 430,
+      "skinke": 115,
+      "makrel i tomat": 190
+    };
+
+    const foodSelect = document.getElementById('foodSelect');
     const foodName = document.getElementById('foodName');
     const grams = document.getElementById('grams');
     const kcal100 = document.getElementById('kcal100');
-    const addBtn = document.getElementById('addBtn');
     const foodList = document.getElementById('foodList');
-    const totalKcal = document.getElementById('totalKcal');
+    const foodOptions = document.getElementById('foodOptions');
 
     let foods = JSON.parse(localStorage.getItem('foods') || '[]');
 
+    Object.keys(foodDB).sort().forEach(name => {
+      const option = document.createElement('option');
+      option.value = name;
+      option.textContent = `${name} — ${foodDB[name]} kcal/100 g`;
+      foodSelect.appendChild(option);
+
+      const dataOption = document.createElement('option');
+      dataOption.value = name;
+      foodOptions.appendChild(dataOption);
+    });
+
+    function fillKcal(name) {
+      const key = name.trim().toLowerCase();
+      if (foodDB[key]) kcal100.value = foodDB[key];
+    }
+
+    foodSelect.addEventListener('change', () => {
+      foodName.value = foodSelect.value;
+      fillKcal(foodSelect.value);
+    });
+
+    foodName.addEventListener('input', () => fillKcal(foodName.value));
+
     function saveFoods() {
       localStorage.setItem('foods', JSON.stringify(foods));
-    }
-
-    function calculateKcal(gramValue, kcalPer100) {
-      return Math.round((gramValue * kcalPer100) / 100);
-    }
-
-    function render() {
-      foodList.innerHTML = '';
-
-      if (foods.length === 0) {
-        foodList.innerHTML = '<div class="empty">Ingen madvarer endnu.</div>';
-      }
-
-      let total = 0;
-
-      foods.forEach((food, index) => {
-        total += food.kcal;
-
-        const item = document.createElement('div');
-        item.className = 'food-item';
-        item.innerHTML = `
-          <div>
-            <div class="food-name">${food.name}</div>
-            <div class="food-details">${food.grams} g · ${food.kcal100} kcal/100 g</div>
-          </div>
-          <div style="display:flex; align-items:center; gap:8px;">
-            <div class="kcal">${food.kcal} kcal</div>
-            <button class="delete-btn" onclick="deleteFood(${index})">Slet</button>
-          </div>
-        `;
-        foodList.appendChild(item);
-      });
-
-      totalKcal.textContent = total;
     }
 
     function addFood() {
@@ -223,17 +211,13 @@
         return;
       }
 
-      foods.push({
-        name,
-        grams: gramValue,
-        kcal100: kcalPer100,
-        kcal: calculateKcal(gramValue, kcalPer100)
-      });
-
+      const kcal = Math.round((gramValue * kcalPer100) / 100);
+      foods.push({ name, grams: gramValue, kcal100: kcalPer100, kcal });
       saveFoods();
       render();
 
       foodName.value = '';
+      foodSelect.value = '';
       grams.value = '';
       kcal100.value = '';
       foodName.focus();
@@ -245,16 +229,36 @@
       render();
     }
 
-    addBtn.addEventListener('click', addFood);
+    function render() {
+      let total = 0;
+      foodList.innerHTML = '';
 
-    [foodName, grams, kcal100].forEach(input => {
-      input.addEventListener('keydown', event => {
-        if (event.key === 'Enter') addFood();
+      if (foods.length === 0) {
+        foodList.innerHTML = '<div class="empty">Ingen madvarer endnu.</div>';
+      }
+
+      foods.forEach((food, index) => {
+        total += food.kcal;
+        const item = document.createElement('div');
+        item.className = 'food-item';
+        item.innerHTML = `
+          <div>
+            <div class="food-name">${food.name}</div>
+            <div class="food-details">${food.grams} g · ${food.kcal100} kcal/100 g</div>
+          </div>
+          <div style="text-align:right;">
+            <b>${food.kcal} kcal</b><br>
+            <button class="delete" onclick="deleteFood(${index})">Slet</button>
+          </div>
+        `;
+        foodList.appendChild(item);
       });
-    });
+
+      document.getElementById('totalKcal').textContent = total;
+      document.getElementById('leftKcal').textContent = DAILY_GOAL - total;
+    }
 
     render();
   </script>
 </body>
 </html>
-
