@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Kcal App</title>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
     *{box-sizing:border-box}
     body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f3f4f6;color:#111827}
@@ -125,6 +126,12 @@
     <button class="secondary" onclick="lookupBarcode()">Hent via stregkode</button>
     <input id="barcodePhoto" type="file" accept="image/*" capture="environment">
     <button class="secondary" onclick="scanBarcodePhoto()">Læs stregkode fra foto</button>
+
+    <h2 style="margin-top:18px">Rigtig kamera-scanner 📷</h2>
+    <div class="muted">Tryk start, peg kameraet mod stregkoden, og vent til den finder tallene.</div>
+    <button class="secondary" onclick="startRealBarcodeScanner()">Start kamera-scanner</button>
+    <button class="danger" onclick="stopRealBarcodeScanner()">Stop scanner</button>
+    <div id="reader" style="width:100%;margin-top:12px;border-radius:16px;overflow:hidden;"></div>
     <div id="barcodeStatus" class="details"></div>
 
     <h2 style="margin-top:18px">Favoritter ⭐</h2>
@@ -381,7 +388,7 @@ async function scanBarcodePhoto(){
   const file=document.getElementById('barcodePhoto').files[0];
   if(!file)return alert('Tag eller vælg et foto af stregkoden først.');
   if(!('BarcodeDetector' in window)){
-    barcodeStatus.textContent='Din browser understøtter ikke automatisk stregkodescanning. Skriv stregkoden manuelt i feltet ovenfor.';
+    barcodeStatus.textContent='Din browser understøtter ikke automatisk stregkodescanning fra foto. Brug kamera-scanneren nedenfor eller skriv stregkoden manuelt.';
     return;
   }
   barcodeStatus.textContent='Læser stregkode fra foto...';
@@ -393,8 +400,55 @@ async function scanBarcodePhoto(){
     barcodeInput.value=codes[0].rawValue;
     lookupBarcode();
   }catch(e){
-    barcodeStatus.textContent='Kunne ikke læse stregkoden. Prøv manuelt at skrive tallene under stregkoden.';
+    barcodeStatus.textContent='Kunne ikke læse stregkoden. Brug kamera-scanneren nedenfor eller skriv tallene under stregkoden.';
   }
+}
+
+let html5QrCodeScanner=null;
+let scannerIsRunning=false;
+
+async function startRealBarcodeScanner(){
+  if(scannerIsRunning)return;
+  barcodeStatus.textContent='Starter kamera... giv tilladelse hvis iPhone spørger.';
+
+  try{
+    html5QrCodeScanner=new Html5Qrcode('reader');
+
+    const config={
+      fps:10,
+      qrbox:{width:260,height:160},
+      aspectRatio:1.777
+    };
+
+    await html5QrCodeScanner.start(
+      { facingMode:'environment' },
+      config,
+      async function(decodedText){
+        barcodeInput.value=decodedText;
+        barcodeStatus.textContent='Stregkode fundet: '+decodedText+' — henter produktdata...';
+        await stopRealBarcodeScanner();
+        lookupBarcode();
+      },
+      function(errorMessage){
+        // Små fejl under scanning ignoreres, så appen ikke larmer hele tiden.
+      }
+    );
+
+    scannerIsRunning=true;
+    barcodeStatus.textContent='Scanner kører. Peg kameraet mod stregkoden.';
+  }catch(e){
+    barcodeStatus.textContent='Kunne ikke starte kamera. Tjek at siden er åbnet via https, og at Safari har kamera-tilladelse.';
+  }
+}
+
+async function stopRealBarcodeScanner(){
+  if(html5QrCodeScanner && scannerIsRunning){
+    try{
+      await html5QrCodeScanner.stop();
+      await html5QrCodeScanner.clear();
+    }catch(e){}
+  }
+  scannerIsRunning=false;
 }
 
 function deleteDayItem(i){getDay().splice(i,1);save();renderAll()}
