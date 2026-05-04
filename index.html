@@ -4,28 +4,57 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Kcal App</title>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     *{box-sizing:border-box}
     body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f3f4f6;color:#111827}
     .app{max-width:620px;margin:0 auto;min-height:100vh;padding:20px}
-    h1{margin:18px 0 4px;font-size:34px;letter-spacing:-.04em} h2{margin:0 0 10px;font-size:21px}
-    .muted{color:#6b7280}.card{background:#fff;border-radius:24px;padding:18px;box-shadow:0 12px 35px rgba(0,0,0,.08);margin-top:14px}
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-    .stat{background:#f9fafb;border-radius:18px;padding:14px}.stat span{color:#6b7280;font-size:13px}.stat strong{display:block;font-size:25px;margin-top:4px}.wide{grid-column:span 2}
-    label{display:block;font-weight:800;margin:13px 0 6px} input,select,textarea{width:100%;padding:13px;border-radius:15px;border:1px solid #d1d5db;font-size:16px;background:#fff} textarea{min-height:88px;resize:vertical}
-    button{width:100%;margin-top:14px;padding:14px;border:0;border-radius:16px;background:#111827;color:white;font-size:16px;font-weight:900}.secondary{background:#e5e7eb;color:#111827}.danger{background:#fee2e2;color:#991b1b}.small{width:auto;margin:0;padding:8px 10px;font-size:13px}.tab{background:#e5e7eb;color:#111827;margin:0}.tab.active{background:#111827;color:white}
-    .tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px}.item{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:13px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:16px;margin-top:10px}.name{font-weight:900}.details{color:#6b7280;font-size:13px;margin-top:3px;line-height:1.35}.hidden{display:none}.ok{color:#047857}.over{color:#dc2626}.star{background:#fff7ed;color:#92400e}.copybox{white-space:pre-wrap;background:#f9fafb;border-radius:16px;padding:12px;margin-top:10px;font-size:13px}
+    h1{margin:18px 0 4px;font-size:34px;letter-spacing:-.04em}
+    h2{margin:0 0 10px;font-size:21px}
+    .muted{color:#6b7280}
+    .card{background:#fff;border-radius:24px;padding:18px;box-shadow:0 12px 35px rgba(0,0,0,.08);margin-top:14px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    .stat{background:#f9fafb;border-radius:18px;padding:14px}
+    .stat span{color:#6b7280;font-size:13px}
+    .stat strong{display:block;font-size:25px;margin-top:4px}
+    .wide{grid-column:span 2}
+    label{display:block;font-weight:800;margin:13px 0 6px}
+    input,select,textarea{width:100%;padding:13px;border-radius:15px;border:1px solid #d1d5db;font-size:16px;background:#fff}
+    textarea{min-height:88px;resize:vertical}
+    button{width:100%;margin-top:14px;padding:14px;border:0;border-radius:16px;background:#111827;color:white;font-size:16px;font-weight:900}
+    .secondary{background:#e5e7eb;color:#111827}
+    .danger{background:#fee2e2;color:#991b1b}
+    .small{width:auto;margin:0;padding:8px 10px;font-size:13px}
+    .tab{background:#e5e7eb;color:#111827;margin:0}
+    .tab.active{background:#111827;color:white}
+    .tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px}
+    .item{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:13px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:16px;margin-top:10px}
+    .name{font-weight:900}
+    .details{color:#6b7280;font-size:13px;margin-top:3px;line-height:1.35}
+    .hidden{display:none}
+    .ok{color:#047857}
+    .over{color:#dc2626}
+    .star{background:#fff7ed;color:#92400e}
+    .copybox{white-space:pre-wrap;background:#f9fafb;border-radius:16px;padding:12px;margin-top:10px;font-size:13px}
+    canvas{width:100%;margin-top:10px;background:#f9fafb;border-radius:16px;padding:10px}
   </style>
 </head>
 <body>
 <main class="app">
   <h1>Kcal App</h1>
-  <div class="muted">Kalorier, retter, favoritter, kalender, makroer og backup.</div>
+  <div class="muted">Kalorier, retter, favoritter, kalender, makroer, backup og graf.</div>
 
   <section class="card">
     <div class="grid2">
-      <div><label>Dato</label><input id="dateInput" type="date" onchange="changeDate()"></div>
-      <div><label>Kcal-mål</label><input id="goalInput" type="number" inputmode="numeric" onchange="saveGoal()"></div>
+      <div>
+        <label>Dato</label>
+        <input id="dateInput" type="date" onchange="changeDate()">
+      </div>
+      <div>
+        <label>Kcal-mål</label>
+        <input id="goalInput" type="number" inputmode="numeric" onchange="saveGoal()">
+      </div>
     </div>
     <div class="grid2">
       <button class="secondary" onclick="previousDay()">← Forrige dag</button>
@@ -58,14 +87,21 @@
       <button id="btnFood" class="tab active" onclick="setAddType('food')">Madvarer</button>
       <button id="btnRecipe" class="tab" onclick="setAddType('recipe')">Retter</button>
     </div>
+
     <div id="foodBox">
-      <label>Vælg madvare</label><select id="foodSelect" onchange="selectFood()"></select>
-      <label>Eller skriv ny madvare</label><input id="foodName" list="foodOptions" placeholder="fx rugbrød" oninput="autoFillFood()"><datalist id="foodOptions"></datalist>
+      <label>Vælg madvare</label>
+      <select id="foodSelect" onchange="selectFood()"></select>
+      <label>Eller skriv ny madvare</label>
+      <input id="foodName" list="foodOptions" placeholder="fx rugbrød" oninput="autoFillFood()">
+      <datalist id="foodOptions"></datalist>
     </div>
+
     <div id="recipeBox" class="hidden">
-      <label>Vælg ret</label><select id="recipeSelect" onchange="selectRecipe()"></select>
+      <label>Vælg ret</label>
+      <select id="recipeSelect" onchange="selectRecipe()"></select>
       <div id="recipePreview" class="details"></div>
     </div>
+
     <div class="grid2">
       <div><label>Gram spist</label><input id="grams" type="number" inputmode="decimal" placeholder="100"></div>
       <div><label>Kcal/100 g</label><input id="kcal100" type="number" inputmode="decimal"></div>
@@ -77,6 +113,20 @@
     </div>
     <button onclick="addToDay()">Tilføj</button>
 
+    <h2 style="margin-top:18px">Scan næringsindhold 📷</h2>
+    <div class="muted">Tag et billede af næringsindholdet på pakken. Skriv madvarens navn først, fx “rugbrød”.</div>
+    <input id="nutritionPhoto" type="file" accept="image/*" capture="environment">
+    <button class="secondary" onclick="scanNutrition()">Læs foto</button>
+    <div id="scanStatus" class="details"></div>
+
+    <h2 style="margin-top:18px">Stregkode-søgning 📦</h2>
+    <div class="muted">Skriv stregkoden eller tag et billede af stregkoden. Appen prøver at hente data fra Open Food Facts.</div>
+    <input id="barcodeInput" placeholder="Fx 5701018024304" inputmode="numeric">
+    <button class="secondary" onclick="lookupBarcode()">Hent via stregkode</button>
+    <input id="barcodePhoto" type="file" accept="image/*" capture="environment">
+    <button class="secondary" onclick="scanBarcodePhoto()">Læs stregkode fra foto</button>
+    <div id="barcodeStatus" class="details"></div>
+
     <h2 style="margin-top:18px">Favoritter ⭐</h2>
     <div id="favoritesList"></div>
   </section>
@@ -84,9 +134,14 @@
   <section id="recipeSection" class="card hidden">
     <h2>Lav/rediger ret</h2>
     <input id="editRecipeName" type="hidden">
-    <label>Navn</label><input id="newRecipeName" placeholder="fx min lasagne">
-    <label>Ingrediens</label><select id="ingredientSelect" onchange="selectIngredient()"></select>
-    <label>Eller skriv ny ingrediens</label><input id="ingredientName" list="foodOptions" placeholder="fx hakket oksekød" oninput="autoFillIngredient()">
+    <label>Navn</label>
+    <input id="newRecipeName" placeholder="fx min lasagne">
+
+    <label>Ingrediens</label>
+    <select id="ingredientSelect" onchange="selectIngredient()"></select>
+    <label>Eller skriv ny ingrediens</label>
+    <input id="ingredientName" list="foodOptions" placeholder="fx hakket oksekød" oninput="autoFillIngredient()">
+
     <div class="grid2">
       <input id="ingredientGrams" type="number" placeholder="Gram">
       <input id="ingredientKcal100" type="number" placeholder="Kcal/100g">
@@ -99,7 +154,9 @@
     <button onclick="addIngredient()">Tilføj ingrediens</button>
     <div id="ingredientList"></div>
     <div id="recipeCalc" class="details"></div>
-    <label>Opskrift / kommentar</label><textarea id="instructions" placeholder="Hvordan laves retten?"></textarea>
+
+    <label>Opskrift / kommentar</label>
+    <textarea id="instructions" placeholder="Hvordan laves retten?"></textarea>
     <button onclick="saveRecipe()">Gem ret</button>
     <button class="secondary" onclick="clearRecipeForm()">Ryd formular</button>
 
@@ -122,6 +179,7 @@
 
   <section class="card">
     <h2>Ugeoversigt</h2>
+    <canvas id="weekChart" height="140"></canvas>
     <div id="weekSummary"></div>
   </section>
 
@@ -133,8 +191,25 @@
 
 <script>
 const baseFoods={
-  "rugbrød":{kcal:210,p:6,c:39,f:2},"havregryn":{kcal:370,p:13,c:58,f:7},"ris kogt":{kcal:130,p:3,c:28,f:0},"pasta kogt":{kcal:150,p:5,c:30,f:1},"kartofler":{kcal:80,p:2,c:17,f:0},"kyllingebryst":{kcal:165,p:31,c:0,f:4},"hakket oksekød 10%":{kcal:200,p:20,c:0,f:10},"laks":{kcal:208,p:20,c:0,f:13},"tun i vand":{kcal:110,p:25,c:0,f:1},"æg":{kcal:155,p:13,c:1,f:11},"skyr naturel":{kcal:60,p:11,c:4,f:0},"banan":{kcal:89,p:1,c:23,f:0},"æble":{kcal:52,p:0,c:14,f:0},"broccoli":{kcal:35,p:3,c:7,f:0},"avocado":{kcal:160,p:2,c:9,f:15},"mandler":{kcal:575,p:21,c:22,f:49},"chokolade":{kcal:535,p:7,c:57,f:30}
+  "rugbrød":{kcal:210,p:6,c:39,f:2},
+  "havregryn":{kcal:370,p:13,c:58,f:7},
+  "ris kogt":{kcal:130,p:3,c:28,f:0},
+  "pasta kogt":{kcal:150,p:5,c:30,f:1},
+  "kartofler":{kcal:80,p:2,c:17,f:0},
+  "kyllingebryst":{kcal:165,p:31,c:0,f:4},
+  "hakket oksekød 10%":{kcal:200,p:20,c:0,f:10},
+  "laks":{kcal:208,p:20,c:0,f:13},
+  "tun i vand":{kcal:110,p:25,c:0,f:1},
+  "æg":{kcal:155,p:13,c:1,f:11},
+  "skyr naturel":{kcal:60,p:11,c:4,f:0},
+  "banan":{kcal:89,p:1,c:23,f:0},
+  "æble":{kcal:52,p:0,c:14,f:0},
+  "broccoli":{kcal:35,p:3,c:7,f:0},
+  "avocado":{kcal:160,p:2,c:9,f:15},
+  "mandler":{kcal:575,p:21,c:22,f:49},
+  "chokolade":{kcal:535,p:7,c:57,f:30}
 };
+
 let customFoods=JSON.parse(localStorage.getItem('customFoods')||'{}');
 let recipes=JSON.parse(localStorage.getItem('recipes')||'{}');
 let favorites=JSON.parse(localStorage.getItem('favorites')||'[]');
@@ -146,52 +221,217 @@ let ingredients=[];
 
 function allFoods(){return {...baseFoods,...customFoods}}
 function getDay(){if(!days[currentDate])days[currentDate]=[];return days[currentDate]}
-function save(){localStorage.setItem('customFoods',JSON.stringify(customFoods));localStorage.setItem('recipes',JSON.stringify(recipes));localStorage.setItem('favorites',JSON.stringify(favorites));localStorage.setItem('days',JSON.stringify(days));localStorage.setItem('goal',goal)}
-function n(v){return (v||'').trim().toLowerCase()} function val(id){return Number(document.getElementById(id).value)||0}
+function save(){
+  localStorage.setItem('customFoods',JSON.stringify(customFoods));
+  localStorage.setItem('recipes',JSON.stringify(recipes));
+  localStorage.setItem('favorites',JSON.stringify(favorites));
+  localStorage.setItem('days',JSON.stringify(days));
+  localStorage.setItem('goal',goal);
+}
+function n(v){return (v||'').trim().toLowerCase()}
+function val(id){return Number(document.getElementById(id).value)||0}
 function macroFrom100(m,g){return {kcal:Math.round(g*m.kcal/100),p:Math.round(g*(m.p||0)/100),c:Math.round(g*(m.c||0)/100),f:Math.round(g*(m.f||0)/100)}}
-function per100FromIngredients(){let g=0,k=0,p=0,c=0,f=0;ingredients.forEach(i=>{g+=i.grams;k+=i.kcal;p+=i.p;c+=i.c;f+=i.f});return g?{kcal:Math.round(k/g*100),p:Math.round(p/g*100),c:Math.round(c/g*100),f:Math.round(f/g*100),grams:g,totalKcal:k}:null}
+function per100FromIngredients(){
+  let g=0,k=0,p=0,c=0,f=0;
+  ingredients.forEach(i=>{g+=i.grams;k+=i.kcal;p+=i.p;c+=i.c;f+=i.f});
+  return g?{kcal:Math.round(k/g*100),p:Math.round(p/g*100),c:Math.round(c/g*100),f:Math.round(f/g*100),grams:g,totalKcal:k}:null;
+}
 
 function rebuildSelects(){
-  const foods=allFoods(), s=(search.value||'').toLowerCase();
-  foodSelect.innerHTML='<option value="">Vælg madvare...</option>'; ingredientSelect.innerHTML='<option value="">Vælg ingrediens...</option>'; foodOptions.innerHTML='';
-  Object.keys(foods).sort().filter(x=>x.includes(s)).forEach(name=>{const m=foods[name];const label=`${name} — ${m.kcal} kcal/100 g`;foodSelect.innerHTML+=`<option value="${name}">${label}</option>`;ingredientSelect.innerHTML+=`<option value="${name}">${label}</option>`;foodOptions.innerHTML+=`<option value="${name}"></option>`});
-  recipeSelect.innerHTML='<option value="">Vælg ret...</option>'; Object.keys(recipes).sort().filter(x=>x.includes(s)||recipes[x].ingredients.some(i=>i.name.includes(s))).forEach(name=>recipeSelect.innerHTML+=`<option value="${name}">${name} — ${recipes[name].kcal} kcal/100 g</option>`)
+  const foods=allFoods();
+  const s=(search.value||'').toLowerCase();
+  foodSelect.innerHTML='<option value="">Vælg madvare...</option>';
+  ingredientSelect.innerHTML='<option value="">Vælg ingrediens...</option>';
+  foodOptions.innerHTML='';
+  Object.keys(foods).sort().filter(x=>x.includes(s)).forEach(name=>{
+    const m=foods[name];
+    const label=`${name} — ${m.kcal} kcal/100 g`;
+    foodSelect.innerHTML+=`<option value="${name}">${label}</option>`;
+    ingredientSelect.innerHTML+=`<option value="${name}">${label}</option>`;
+    foodOptions.innerHTML+=`<option value="${name}"></option>`;
+  });
+  recipeSelect.innerHTML='<option value="">Vælg ret...</option>';
+  Object.keys(recipes).sort().filter(name=>name.includes(s)||recipes[name].ingredients.some(i=>i.name.includes(s))).forEach(name=>{
+    recipeSelect.innerHTML+=`<option value="${name}">${name} — ${recipes[name].kcal} kcal/100 g</option>`;
+  });
 }
-function fillInputs(prefix,m){document.getElementById(prefix+'Kcal100').value=m.kcal;document.getElementById(prefix+'Protein100').value=m.p||0;document.getElementById(prefix+'Carbs100').value=m.c||0;document.getElementById(prefix+'Fat100').value=m.f||0}
+function fillInputs(prefix,m){
+  document.getElementById(prefix+'Kcal100').value=m.kcal;
+  document.getElementById(prefix+'Protein100').value=m.p||0;
+  document.getElementById(prefix+'Carbs100').value=m.c||0;
+  document.getElementById(prefix+'Fat100').value=m.f||0;
+}
 function selectFood(){const m=allFoods()[foodSelect.value];if(m){foodName.value=foodSelect.value;fillInputs('',m)}}
 function autoFillFood(){const m=allFoods()[n(foodName.value)];if(m)fillInputs('',m)}
 function selectIngredient(){const m=allFoods()[ingredientSelect.value];if(m){ingredientName.value=ingredientSelect.value;fillInputs('ingredient',m)}}
 function autoFillIngredient(){const m=allFoods()[n(ingredientName.value)];if(m)fillInputs('ingredient',m)}
-function selectRecipe(){const r=recipes[recipeSelect.value];if(r){foodName.value=recipeSelect.value;kcal100.value=r.kcal;protein100.value=r.p;carbs100.value=r.c;fat100.value=r.f;recipePreview.innerHTML=recipeHTML(recipeSelect.value)}}
-function setAddType(t){addType=t;foodBox.classList.toggle('hidden',t!=='food');recipeBox.classList.toggle('hidden',t!=='recipe');btnFood.classList.toggle('active',t==='food');btnRecipe.classList.toggle('active',t==='recipe')}
-function showTab(t){['Add','Recipe','Tools'].forEach(x=>{document.getElementById('tab'+x).classList.toggle('active',x.toLowerCase()===t);document.getElementById(x.toLowerCase()+'Section').classList.toggle('hidden',x.toLowerCase()!==t)})}
+function selectRecipe(){
+  const r=recipes[recipeSelect.value];
+  if(r){foodName.value=recipeSelect.value;kcal100.value=r.kcal;protein100.value=r.p;carbs100.value=r.c;fat100.value=r.f;recipePreview.innerHTML=recipeHTML(recipeSelect.value)}
+}
+function setAddType(t){
+  addType=t;
+  foodBox.classList.toggle('hidden',t!=='food');
+  recipeBox.classList.toggle('hidden',t!=='recipe');
+  btnFood.classList.toggle('active',t==='food');
+  btnRecipe.classList.toggle('active',t==='recipe');
+}
+function showTab(t){
+  ['Add','Recipe','Tools'].forEach(x=>{
+    document.getElementById('tab'+x).classList.toggle('active',x.toLowerCase()===t);
+    document.getElementById(x.toLowerCase()+'Section').classList.toggle('hidden',x.toLowerCase()!==t);
+  });
+}
 function changeDate(){currentDate=dateInput.value;renderAll()}
 function shiftDate(daysToMove){const d=new Date(currentDate);d.setDate(d.getDate()+daysToMove);currentDate=d.toISOString().slice(0,10);renderAll()}
 function previousDay(){shiftDate(-1)}
 function nextDay(){shiftDate(1)}
 function goToday(){currentDate=new Date().toISOString().slice(0,10);renderAll()}
-function saveGoal(){goal=Number(goalInput.value)||1800;save();renderAll()} function resetDay(){if(confirm('Nulstil denne dag?')){days[currentDate]=[];save();renderAll()}}
+function saveGoal(){goal=Number(goalInput.value)||1800;save();renderAll()}
+function resetDay(){if(confirm('Nulstil denne dag?')){days[currentDate]=[];save();renderAll()}}
 
-function addToDay(){let name=n(foodName.value);if(addType==='recipe'&&recipeSelect.value)name=n(recipeSelect.value);const g=val('grams'),m={kcal:val('kcal100'),p:val('protein100'),c:val('carbs100'),f:val('fat100')};if(!name||!g||!m.kcal)return alert('Udfyld navn, gram og kcal.');const x=macroFrom100(m,g);getDay().push({name,grams:g,kcal100:m.kcal,p100:m.p,c100:m.c,f100:m.f,...x});save();foodName.value='';foodSelect.value='';recipeSelect.value='';grams.value='';kcal100.value='';protein100.value='';carbs100.value='';fat100.value='';recipePreview.innerHTML='';renderAll()}
+function addToDay(){
+  let name=n(foodName.value);
+  if(addType==='recipe'&&recipeSelect.value)name=n(recipeSelect.value);
+  const g=val('grams');
+  const m={kcal:val('kcal100'),p:val('protein100'),c:val('carbs100'),f:val('fat100')};
+  if(!name||!g||!m.kcal)return alert('Udfyld navn, gram og kcal.');
+  if(addType==='food' && !allFoods()[name]) customFoods[name]=m;
+  const x=macroFrom100(m,g);
+  getDay().push({name,grams:g,kcal100:m.kcal,p100:m.p,c100:m.c,f100:m.f,...x});
+  save();
+  foodName.value='';foodSelect.value='';recipeSelect.value='';grams.value='';kcal100.value='';protein100.value='';carbs100.value='';fat100.value='';recipePreview.innerHTML='';
+  renderAll();
+}
+async function scanNutrition(){
+  const file=document.getElementById('nutritionPhoto').files[0];
+  if(!file)return alert('Vælg eller tag et foto først.');
+  scanStatus.textContent='Læser foto... det kan tage 10-30 sekunder.';
+  try{
+    const result=await Tesseract.recognize(file,'dan+eng');
+    const text=result.data.text.toLowerCase().replace(/,/g,'.');
+    const kcalMatch=text.match(/(\d{2,4})\s*kcal/);
+    if(kcalMatch)kcal100.value=Number(kcalMatch[1]);
+
+    function findValue(words){
+      for(const word of words){
+        const idx=text.indexOf(word);
+        if(idx!==-1){
+          const part=text.slice(idx,idx+90);
+          const m=part.match(/(\d+(?:\.\d+)?)\s*g/);
+          if(m)return Number(m[1]);
+        }
+      }
+      return 0;
+    }
+
+    const fat=findValue(['fedt','fat']);
+    const carbs=findValue(['kulhydrat','carbohydrate']);
+    const protein=findValue(['protein']);
+    if(fat)fat100.value=fat;
+    if(carbs)carbs100.value=carbs;
+    if(protein)protein100.value=protein;
+
+    const name=n(foodName.value);
+    if(name && kcal100.value){
+      customFoods[name]={kcal:val('kcal100'),p:val('protein100'),c:val('carbs100'),f:val('fat100')};
+      save();
+      rebuildSelects();
+    }
+
+    scanStatus.innerHTML='Fundet: '+(kcal100.value||'?')+' kcal · Protein '+(protein100.value||0)+'g · Kulhydrat '+(carbs100.value||0)+'g · Fedt '+(fat100.value||0)+'g pr. 100g';
+  }catch(e){
+    scanStatus.textContent='Kunne ikke læse billedet. Prøv et skarpere billede tættere på teksten.';
+  }
+}
+
+async function lookupBarcode(){
+  const code=(barcodeInput.value||'').trim();
+  if(!code)return alert('Skriv eller scan en stregkode først.');
+  barcodeStatus.textContent='Henter produktdata...';
+  try{
+    const url='https://world.openfoodfacts.org/api/v2/product/'+code+'?fields=product_name,nutriments';
+    const res=await fetch(url);
+    const data=await res.json();
+    if(!data.product){barcodeStatus.textContent='Produktet blev ikke fundet i databasen.';return;}
+    const product=data.product;
+    const nutriments=product.nutriments||{};
+    const productName=n(product.product_name||'ukendt produkt');
+    const kcal=Number(nutriments['energy-kcal_100g']||nutriments['energy-kcal']||0);
+    const protein=Number(nutriments['proteins_100g']||0);
+    const carbs=Number(nutriments['carbohydrates_100g']||0);
+    const fat=Number(nutriments['fat_100g']||0);
+    if(productName&&productName!=='ukendt produkt')foodName.value=productName;
+    if(kcal)kcal100.value=Math.round(kcal);
+    protein100.value=protein||0;
+    carbs100.value=carbs||0;
+    fat100.value=fat||0;
+    if(productName&&kcal){
+      customFoods[productName]={kcal:Math.round(kcal),p:protein||0,c:carbs||0,f:fat||0};
+      save();
+      rebuildSelects();
+    }
+    barcodeStatus.innerHTML='Fundet ✅<br>'+productName+'<br>'+Math.round(kcal||0)+' kcal · Protein '+(protein||0)+'g · Kulhydrat '+(carbs||0)+'g · Fedt '+(fat||0)+'g pr. 100g';
+  }catch(e){
+    barcodeStatus.textContent='Kunne ikke hente produktet. Tjek internet eller prøv igen.';
+  }
+}
+
+async function scanBarcodePhoto(){
+  const file=document.getElementById('barcodePhoto').files[0];
+  if(!file)return alert('Tag eller vælg et foto af stregkoden først.');
+  if(!('BarcodeDetector' in window)){
+    barcodeStatus.textContent='Din browser understøtter ikke automatisk stregkodescanning. Skriv stregkoden manuelt i feltet ovenfor.';
+    return;
+  }
+  barcodeStatus.textContent='Læser stregkode fra foto...';
+  try{
+    const bitmap=await createImageBitmap(file);
+    const detector=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e']});
+    const codes=await detector.detect(bitmap);
+    if(!codes.length){barcodeStatus.textContent='Fandt ingen stregkode. Prøv tættere på og med godt lys.';return;}
+    barcodeInput.value=codes[0].rawValue;
+    lookupBarcode();
+  }catch(e){
+    barcodeStatus.textContent='Kunne ikke læse stregkoden. Prøv manuelt at skrive tallene under stregkoden.';
+  }
+}
+
 function deleteDayItem(i){getDay().splice(i,1);save();renderAll()}
 function addFavoriteToDay(name){setAddType('recipe');recipeSelect.value=name;selectRecipe();grams.focus();showTab('add')}
 function toggleFav(name){favorites=favorites.includes(name)?favorites.filter(x=>x!==name):[...favorites,name];save();renderAll()}
 
-function addIngredient(){const name=n(ingredientName.value),g=val('ingredientGrams'),m={kcal:val('ingredientKcal100'),p:val('ingredientProtein100'),c:val('ingredientCarbs100'),f:val('ingredientFat100')};if(!name||!g||!m.kcal)return alert('Udfyld ingrediens, gram og kcal.');const x=macroFrom100(m,g);ingredients.push({name,grams:g,kcal100:m.kcal,p100:m.p,c100:m.c,f100:m.f,...x});if(!allFoods()[name])customFoods[name]=m;save();ingredientName.value='';ingredientSelect.value='';ingredientGrams.value='';ingredientKcal100.value='';ingredientProtein100.value='';ingredientCarbs100.value='';ingredientFat100.value='';renderAll()}
+function addIngredient(){
+  const name=n(ingredientName.value);
+  const g=val('ingredientGrams');
+  const m={kcal:val('ingredientKcal100'),p:val('ingredientProtein100'),c:val('ingredientCarbs100'),f:val('ingredientFat100')};
+  if(!name||!g||!m.kcal)return alert('Udfyld ingrediens, gram og kcal.');
+  const x=macroFrom100(m,g);
+  ingredients.push({name,grams:g,kcal100:m.kcal,p100:m.p,c100:m.c,f100:m.f,...x});
+  if(!allFoods()[name])customFoods[name]=m;
+  save();
+  ingredientName.value='';ingredientSelect.value='';ingredientGrams.value='';ingredientKcal100.value='';ingredientProtein100.value='';ingredientCarbs100.value='';ingredientFat100.value='';
+  renderAll();
+}
 function deleteIngredient(i){ingredients.splice(i,1);renderAll()}
 function clearRecipeForm(){editRecipeName.value='';newRecipeName.value='';instructions.value='';ingredients=[];renderAll()}
-function saveRecipe(){const name=n(newRecipeName.value),m=per100FromIngredients();if(!name||!m)return alert('Skriv navn og tilføj ingredienser.');if(editRecipeName.value&&editRecipeName.value!==name)delete recipes[editRecipeName.value];recipes[name]={kcal:m.kcal,p:m.p,c:m.c,f:m.f,ingredients:[...ingredients],instructions:instructions.value.trim()};save();clearRecipeForm();showTab('recipe');renderAll()}
+function saveRecipe(){
+  const name=n(newRecipeName.value);
+  const m=per100FromIngredients();
+  if(!name||!m)return alert('Skriv navn og tilføj ingredienser.');
+  if(editRecipeName.value&&editRecipeName.value!==name)delete recipes[editRecipeName.value];
+  recipes[name]={kcal:m.kcal,p:m.p,c:m.c,f:m.f,ingredients:[...ingredients],instructions:instructions.value.trim()};
+  save();clearRecipeForm();showTab('recipe');renderAll();
+}
 function editRecipe(name){const r=recipes[name];editRecipeName.value=name;newRecipeName.value=name;ingredients=JSON.parse(JSON.stringify(r.ingredients));instructions.value=r.instructions||'';showTab('recipe');renderAll()}
 function deleteRecipe(name){if(confirm('Slet retten?')){delete recipes[name];favorites=favorites.filter(x=>x!==name);save();renderAll()}}
-function recipeHTML(name){const r=recipes[name];if(!r)return'';const ing=r.ingredients.map(i=>`• ${i.name}: ${i.grams} g`).join('<br>');const shop=r.ingredients.map(i=>`☐ ${i.name} (${i.grams} g)`).join('<br>');return `<b>${name}</b><br>${r.kcal} kcal/100g · P ${r.p}g · K ${r.c}g · F ${r.f}g<br><br><b>Ingredienser</b><br>${ing}<br><br><b>Indkøbsliste</b><br>${shop}<br><br><b>Opskrift</b><br>${r.instructions||'Ingen opskrift endnu.'}`}
+function recipeHTML(name){
+  const r=recipes[name];if(!r)return'';
+  const ing=r.ingredients.map(i=>`• ${i.name}: ${i.grams} g`).join('<br>');
+  const shop=r.ingredients.map(i=>`☐ ${i.name} (${i.grams} g)`).join('<br>');
+  return `<b>${name}</b><br>${r.kcal} kcal/100g · P ${r.p}g · K ${r.c}g · F ${r.f}g<br><br><b>Ingredienser</b><br>${ing}<br><br><b>Indkøbsliste</b><br>${shop}<br><br><b>Opskrift</b><br>${r.instructions||'Ingen opskrift endnu.'}`;
+}
 
-function renderAll(){dateInput.value=currentDate;goalInput.value=goal;goalText.textContent=goal;rebuildSelects();
-  let d=getDay(),total=0,p=0,c=0,f=0;dayList.innerHTML=d.length?'':'<div class="muted">Ingen madvarer på denne dag.</div>';d.forEach((x,i)=>{total+=x.kcal;p+=x.p;c+=x.c;f+=x.f;dayList.innerHTML+=`<div class="item"><div><div class="name">${x.name}</div><div class="details">${x.grams} g · ${x.kcal} kcal · P ${x.p}g · K ${x.c}g · F ${x.f}g</div></div><button class="small danger" onclick="deleteDayItem(${i})">Slet</button></div>`});
-  totalKcal.textContent=total;proteinText.textContent=p;carbsText.textContent=c;fatText.textContent=f;const left=goal-total;leftLabel.textContent=left>=0?'Tilbage':'Over mål';leftKcal.textContent=Math.abs(left);leftKcal.className=left>=0?'ok':'over';
-  favoritesList.innerHTML=favorites.length?'':'<div class="muted">Ingen favoritter endnu.</div>';favorites.forEach(name=>{if(recipes[name])favoritesList.innerHTML+=`<div class="item"><div><div class="name">⭐ ${name}</div><div class="details">Tryk “brug” og skriv gram.</div></div><button class="small" onclick="addFavoriteToDay('${name}')">Brug</button></div>`});
-  ingredientList.innerHTML=ingredients.length?'':'<div class="muted">Ingen ingredienser endnu.</div>';ingredients.forEach((i,idx)=>ingredientList.innerHTML+=`<div class="item"><div><div class="name">${i.name}</div><div class="details">${i.grams} g · ${i.kcal} kcal</div></div><button class="small danger" onclick="deleteIngredient(${idx})">Slet</button></div>`);const rm=per100FromIngredients();recipeCalc.textContent=rm?`Ret: ${rm.grams} g · ${rm.totalKcal} kcal i alt · ${rm.kcal} kcal/100g · P ${rm.p}g · K ${rm.c}g · F ${rm.f}g pr. 100g`:'Tilføj ingredienser for at beregne retten.';
-  const s=(search.value||'').toLowerCase();savedRecipes.innerHTML='';Object.keys(recipes).sort().filter(name=>name.includes(s)||recipes[name].ingredients.some(i=>i.name.includes(s))).forEach(name=>{savedRecipes.innerHTML+=`<div class="item"><div><div class="name">${favorites.includes(name)?'⭐ ':''}${name}</div><div class="details">${recipeHTML(name)}</div></div><div><button class="small star" onclick="toggleFav('${name}')">⭐</button><br><br><button class="small" onclick="editRecipe('${name}')">Rediger</button><br><br><button class="small danger" onclick="deleteRecipe('${name}')">Slet</button></div></div>`});if(!Object.keys(recipes).length)savedRecipes.innerHTML='<div class="muted">Ingen retter endnu.</div>';
-  renderShopping();renderWeekSummary();}
 function renderWeekSummary(){
   const start=new Date(currentDate);
   const day=start.getDay()===0?7:start.getDay();
@@ -210,15 +450,103 @@ function renderWeekSummary(){
   }
   weekSummary.innerHTML+=`<div class="item"><div class="name">Uge i alt</div><b>${weekTotal} kcal</b></div>`;
 }
-function renderShopping(){let map={};Object.values(recipes).forEach(r=>r.ingredients.forEach(i=>map[i.name]=(map[i.name]||0)+i.grams));shoppingList.innerHTML=Object.keys(map).length?'':'<div class="muted">Ingen ingredienser endnu.</div>';Object.keys(map).sort().forEach(k=>shoppingList.innerHTML+=`<div class="item"><div>${k}</div><b>${map[k]} g</b></div>`)}
-function copyShoppingList(){let map={};Object.values(recipes).forEach(r=>r.ingredients.forEach(i=>map[i.name]=(map[i.name]||0)+i.grams));const text=Object.keys(map).sort().map(k=>`☐ ${k}: ${map[k]} g`).join('\n');copyOutput.textContent=text||'Ingen indkøbsliste endnu.';copyOutput.classList.remove('hidden')}
+
+function renderChart(){
+  const canvas=document.getElementById('weekChart');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const width=canvas.width=canvas.offsetWidth;
+  const height=canvas.height=140;
+  ctx.clearRect(0,0,width,height);
+  const start=new Date(currentDate);
+  const day=start.getDay()===0?7:start.getDay();
+  start.setDate(start.getDate()-day+1);
+  const values=[];
+  for(let i=0;i<7;i++){
+    const d=new Date(start);
+    d.setDate(start.getDate()+i);
+    const key=d.toISOString().slice(0,10);
+    const total=(days[key]||[]).reduce((sum,x)=>sum+x.kcal,0);
+    values.push(total);
+  }
+  const max=Math.max(...values,goal,1);
+  const barWidth=width/7;
+  values.forEach((val,i)=>{
+    const barHeight=(val/max)*(height-30);
+    ctx.fillStyle=val>goal?'#dc2626':'#16a34a';
+    ctx.fillRect(i*barWidth+8,height-barHeight-20,barWidth-16,barHeight);
+    ctx.fillStyle='#111827';
+    ctx.font='11px sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText(['M','T','O','T','F','L','S'][i],i*barWidth+barWidth/2,height-5);
+  });
+}
+
+function renderShopping(){
+  let map={};
+  Object.values(recipes).forEach(r=>r.ingredients.forEach(i=>map[i.name]=(map[i.name]||0)+i.grams));
+  shoppingList.innerHTML=Object.keys(map).length?'':'<div class="muted">Ingen ingredienser endnu.</div>';
+  Object.keys(map).sort().forEach(k=>shoppingList.innerHTML+=`<div class="item"><div>${k}</div><b>${map[k]} g</b></div>`);
+}
+function copyShoppingList(){
+  let map={};
+  Object.values(recipes).forEach(r=>r.ingredients.forEach(i=>map[i.name]=(map[i.name]||0)+i.grams));
+  const text=Object.keys(map).sort().map(k=>`☐ ${k}: ${map[k]} g`).join('\n');
+  copyOutput.textContent=text||'Ingen indkøbsliste endnu.';
+  copyOutput.classList.remove('hidden');
+}
 function exportBackup(){backupText.value=JSON.stringify({customFoods,recipes,favorites,days,goal},null,2)}
-function importBackup(){try{const b=JSON.parse(backupText.value);customFoods=b.customFoods||{};recipes=b.recipes||{};favorites=b.favorites||[];days=b.days||{};goal=b.goal||1800;save();renderAll();alert('Backup importeret.')}catch(e){alert('Backup kunne ikke læses.')}}
+function importBackup(){
+  try{
+    const b=JSON.parse(backupText.value);
+    customFoods=b.customFoods||{};recipes=b.recipes||{};favorites=b.favorites||[];days=b.days||{};goal=b.goal||1800;
+    save();renderAll();alert('Backup importeret.');
+  }catch(e){alert('Backup kunne ikke læses.')}
+}
+
+function renderAll(){
+  dateInput.value=currentDate;
+  goalInput.value=goal;
+  goalText.textContent=goal;
+  rebuildSelects();
+
+  let d=getDay(),total=0,p=0,c=0,f=0;
+  dayList.innerHTML=d.length?'':'<div class="muted">Ingen madvarer på denne dag.</div>';
+  d.forEach((x,i)=>{
+    total+=x.kcal;p+=x.p;c+=x.c;f+=x.f;
+    dayList.innerHTML+=`<div class="item"><div><div class="name">${x.name}</div><div class="details">${x.grams} g · ${x.kcal} kcal · P ${x.p}g · K ${x.c}g · F ${x.f}g</div></div><button class="small danger" onclick="deleteDayItem(${i})">Slet</button></div>`;
+  });
+  totalKcal.textContent=total;proteinText.textContent=p;carbsText.textContent=c;fatText.textContent=f;
+  const left=goal-total;
+  leftLabel.textContent=left>=0?'Tilbage':'Over mål';
+  leftKcal.textContent=Math.abs(left);
+  leftKcal.className=left>=0?'ok':'over';
+
+  favoritesList.innerHTML=favorites.length?'':'<div class="muted">Ingen favoritter endnu.</div>';
+  favorites.forEach(name=>{
+    if(recipes[name])favoritesList.innerHTML+=`<div class="item"><div><div class="name">⭐ ${name}</div><div class="details">Tryk “brug” og skriv gram.</div></div><button class="small" onclick="addFavoriteToDay('${name}')">Brug</button></div>`;
+  });
+
+  ingredientList.innerHTML=ingredients.length?'':'<div class="muted">Ingen ingredienser endnu.</div>';
+  ingredients.forEach((i,idx)=>{
+    ingredientList.innerHTML+=`<div class="item"><div><div class="name">${i.name}</div><div class="details">${i.grams} g · ${i.kcal} kcal</div></div><button class="small danger" onclick="deleteIngredient(${idx})">Slet</button></div>`;
+  });
+  const rm=per100FromIngredients();
+  recipeCalc.textContent=rm?`Ret: ${rm.grams} g · ${rm.totalKcal} kcal i alt · ${rm.kcal} kcal/100g · P ${rm.p}g · K ${rm.c}g · F ${rm.f}g pr. 100g`:'Tilføj ingredienser for at beregne retten.';
+
+  const s=(search.value||'').toLowerCase();
+  savedRecipes.innerHTML='';
+  Object.keys(recipes).sort().filter(name=>name.includes(s)||recipes[name].ingredients.some(i=>i.name.includes(s))).forEach(name=>{
+    savedRecipes.innerHTML+=`<div class="item"><div><div class="name">${favorites.includes(name)?'⭐ ':''}${name}</div><div class="details">${recipeHTML(name)}</div></div><div><button class="small star" onclick="toggleFav('${name}')">⭐</button><br><br><button class="small" onclick="editRecipe('${name}')">Rediger</button><br><br><button class="small danger" onclick="deleteRecipe('${name}')">Slet</button></div></div>`;
+  });
+  if(!Object.keys(recipes).length)savedRecipes.innerHTML='<div class="muted">Ingen retter endnu.</div>';
+
+  renderShopping();
+  renderWeekSummary();
+  renderChart();
+}
 
 renderAll();
 </script>
 </body>
 </html>
-
-
-
