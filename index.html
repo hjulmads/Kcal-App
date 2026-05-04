@@ -263,10 +263,17 @@ function rebuildSelects(){
   });
 }
 function fillInputs(prefix,m){
-  document.getElementById(prefix+'Kcal100').value=m.kcal;
-  document.getElementById(prefix+'Protein100').value=m.p||0;
-  document.getElementById(prefix+'Carbs100').value=m.c||0;
-  document.getElementById(prefix+'Fat100').value=m.f||0;
+  if(prefix===''){
+    kcal100.value=m.kcal||0;
+    protein100.value=m.p||0;
+    carbs100.value=m.c||0;
+    fat100.value=m.f||0;
+  }else{
+    document.getElementById(prefix+'Kcal100').value=m.kcal||0;
+    document.getElementById(prefix+'Protein100').value=m.p||0;
+    document.getElementById(prefix+'Carbs100').value=m.c||0;
+    document.getElementById(prefix+'Fat100').value=m.f||0;
+  }
 }
 function selectFood(){const m=allFoods()[foodSelect.value];if(m){foodName.value=foodSelect.value;fillInputs('',m)}}
 function autoFillFood(){const m=allFoods()[n(foodName.value)];if(m)fillInputs('',m)}
