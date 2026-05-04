@@ -6,439 +6,279 @@
   <title>Kcal Beregner</title>
   <style>
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f3f4f6;
-      color: #111827;
-    }
-    .app { max-width: 540px; margin: 0 auto; min-height: 100vh; padding: 20px; }
-    h1 { margin: 18px 0 4px; font-size: 34px; letter-spacing: -0.04em; }
-    h2 { margin: 0 0 10px; font-size: 22px; }
-    .subtitle { color: #6b7280; margin-bottom: 18px; }
-    .card {
-      background: white;
-      border-radius: 24px;
-      padding: 18px;
-      box-shadow: 0 12px 35px rgba(0,0,0,0.08);
-      margin-top: 14px;
-    }
-    .goal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .stat { background: #f9fafb; border-radius: 18px; padding: 14px; }
-    .stat span { color: #6b7280; font-size: 14px; }
-    .stat strong { display: block; font-size: 28px; margin-top: 4px; }
-    .remaining { grid-column: span 2; }
-    .ok { color: #047857; }
-    .over { color: #dc2626; }
-    label { display: block; font-weight: 800; margin: 14px 0 6px; }
-    input, select {
-      width: 100%;
-      padding: 14px;
-      border-radius: 15px;
-      border: 1px solid #d1d5db;
-      font-size: 16px;
-      background: white;
-    }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    button {
-      width: 100%;
-      margin-top: 18px;
-      padding: 15px;
-      border: 0;
-      border-radius: 16px;
-      background: #111827;
-      color: white;
-      font-size: 17px;
-      font-weight: 900;
-    }
-    .secondary { background: #e5e7eb; color: #111827; }
-    .small { width: auto; margin: 0; padding: 8px 10px; font-size: 13px; }
-    .delete { background: #fee2e2; color: #991b1b; }
-    .food-item, .recipe-line {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      padding: 13px;
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 16px;
-      margin-top: 10px;
-    }
-    .food-name { font-weight: 900; }
-    .food-details { color: #6b7280; font-size: 13px; margin-top: 3px; }
-    .empty { color: #6b7280; text-align: center; padding: 14px; }
-    .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
-    .tab { background: #e5e7eb; color: #111827; margin: 0; }
-    .tab.active { background: #111827; color: white; }
-    .hidden { display: none; }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:#f3f4f6; color:#111827; }
+    .app { max-width:560px; margin:0 auto; min-height:100vh; padding:20px; }
+    h1 { margin:18px 0 4px; font-size:34px; letter-spacing:-0.04em; }
+    h2 { margin:0 0 10px; font-size:22px; }
+    .subtitle,.muted { color:#6b7280; }
+    .card { background:white; border-radius:24px; padding:18px; box-shadow:0 12px 35px rgba(0,0,0,.08); margin-top:14px; }
+    .goal-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .stat { background:#f9fafb; border-radius:18px; padding:14px; }
+    .stat span { color:#6b7280; font-size:14px; }
+    .stat strong { display:block; font-size:28px; margin-top:4px; }
+    .remaining { grid-column:span 2; }
+    .ok { color:#047857; } .over { color:#dc2626; }
+    label { display:block; font-weight:800; margin:14px 0 6px; }
+    input, select, textarea { width:100%; padding:14px; border-radius:15px; border:1px solid #d1d5db; font-size:16px; background:white; }
+    textarea { min-height:90px; resize:vertical; }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    button { width:100%; margin-top:18px; padding:15px; border:0; border-radius:16px; background:#111827; color:white; font-size:17px; font-weight:900; }
+    .secondary { background:#e5e7eb; color:#111827; }
+    .small { width:auto; margin:0; padding:8px 10px; font-size:13px; }
+    .delete { background:#fee2e2; color:#991b1b; }
+    .food-item,.recipe-line { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; padding:13px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:16px; margin-top:10px; }
+    .food-name { font-weight:900; }
+    .food-details { color:#6b7280; font-size:13px; margin-top:3px; }
+    .empty { color:#6b7280; text-align:center; padding:14px; }
+    .tabs { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
+    .tab { background:#e5e7eb; color:#111827; margin:0; }
+    .tab.active { background:#111827; color:white; }
+    .hidden { display:none; }
+    .pillrow { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
   </style>
 </head>
 <body>
-  <main class="app">
-    <h1>Kcal Beregner</h1>
-    <div class="subtitle">Madvarer, egne retter, mål og automatisk dagsnulstilling.</div>
+<main class="app">
+  <h1>Kcal Beregner</h1>
+  <div class="subtitle">Madvarer for sig, retter for sig — med opskrift og indkøbsliste.</div>
 
-    <section class="card goal-grid">
-      <div class="stat">
-        <span>Mål</span>
-        <strong id="goalText">1800</strong>
-        <span>kcal</span>
-      </div>
-      <div class="stat">
-        <span>Spist</span>
-        <strong id="totalKcal">0</strong>
-        <span>kcal</span>
-      </div>
-      <div class="stat remaining">
-        <span id="leftLabel">Tilbage i dag</span>
-        <strong id="leftKcal" class="ok">1800</strong>
-        <span>kcal</span>
-      </div>
-    </section>
+  <section class="card goal-grid">
+    <div class="stat"><span>Mål</span><strong id="goalText">1800</strong><span>kcal</span></div>
+    <div class="stat"><span>Spist</span><strong id="totalKcal">0</strong><span>kcal</span></div>
+    <div class="stat remaining"><span id="leftLabel">Tilbage i dag</span><strong id="leftKcal" class="ok">1800</strong><span>kcal</span></div>
+  </section>
 
-    <section class="card">
-      <h2>Indstillinger</h2>
-      <label for="goalInput">Dagligt kcal-mål</label>
-      <input id="goalInput" type="number" inputmode="numeric" placeholder="1800" />
-      <button onclick="saveGoal()">Gem mål</button>
-      <button class="secondary" onclick="resetToday()">Nulstil dagen</button>
-    </section>
+  <section class="card">
+    <h2>Indstillinger</h2>
+    <label for="goalInput">Dagligt kcal-mål</label>
+    <input id="goalInput" type="number" inputmode="numeric" placeholder="1800" />
+    <button onclick="saveGoal()">Gem mål</button>
+    <button class="secondary" onclick="resetToday()">Nulstil dagen</button>
+  </section>
 
-    <div class="tabs">
-      <button id="tabFood" class="tab active" onclick="showTab('food')">Tilføj mad</button>
-      <button id="tabRecipe" class="tab" onclick="showTab('recipe')">Lav egen ret</button>
+  <div class="tabs">
+    <button id="tabFood" class="tab active" onclick="showTab('food')">Tilføj mad</button>
+    <button id="tabRecipe" class="tab" onclick="showTab('recipe')">Lav egen ret</button>
+  </div>
+
+  <section id="foodSection" class="card">
+    <h2>Tilføj mad</h2>
+    <div class="pillrow">
+      <button id="chooseFoodBtn" class="tab active" onclick="setAddType('food')">Madvarer</button>
+      <button id="chooseRecipeBtn" class="tab" onclick="setAddType('recipe')">Retter</button>
     </div>
 
-    <section id="foodSection" class="card">
-      <h2>Tilføj mad</h2>
-      <label for="foodSelect">Vælg madvare eller egen ret</label>
-      <select id="foodSelect">
-        <option value="">Vælg fra liste...</option>
-      </select>
-
-      <label for="foodName">Eller skriv selv</label>
+    <div id="addFoodBox">
+      <label for="foodSelect">Vælg madvare</label>
+      <select id="foodSelect"><option value="">Vælg madvare...</option></select>
+      <label for="foodName">Eller skriv madvare</label>
       <input id="foodName" list="foodOptions" placeholder="Fx rugbrød" />
       <datalist id="foodOptions"></datalist>
+    </div>
 
-      <div class="row">
-        <div>
-          <label for="grams">Gram spist</label>
-          <input id="grams" type="number" inputmode="decimal" placeholder="100" />
-        </div>
-        <div>
-          <label for="kcal100">Kcal / 100 g</label>
-          <input id="kcal100" type="number" inputmode="decimal" placeholder="210" />
-        </div>
-      </div>
+    <div id="addRecipeBox" class="hidden">
+      <label for="recipeSelect">Vælg færdig ret</label>
+      <select id="recipeSelect"><option value="">Vælg ret...</option></select>
+      <div id="selectedRecipeInfo" class="muted" style="margin-top:10px;"></div>
+    </div>
 
-      <button onclick="addFood()">Tilføj madvare</button>
-    </section>
+    <div class="row">
+      <div><label for="grams">Gram spist</label><input id="grams" type="number" inputmode="decimal" placeholder="100" /></div>
+      <div><label for="kcal100">Kcal / 100 g</label><input id="kcal100" type="number" inputmode="decimal" placeholder="210" /></div>
+    </div>
+    <button onclick="addFood()">Tilføj</button>
+  </section>
 
-    <section id="recipeSection" class="card hidden">
-      <h2>Lav egen ret</h2>
-      <label for="recipeName">Navn på retten</label>
-      <input id="recipeName" placeholder="Fx min lasagne" />
+  <section id="recipeSection" class="card hidden">
+    <h2>Lav egen ret</h2>
+    <label for="recipeName">Navn på retten</label>
+    <input id="recipeName" placeholder="Fx min lasagne" />
 
-      <label for="ingredientSelect">Ingrediens</label>
-      <select id="ingredientSelect">
-        <option value="">Vælg ingrediens...</option>
-      </select>
+    <label for="ingredientSelect">Ingrediens fra madvarelisten</label>
+    <select id="ingredientSelect"><option value="">Vælg ingrediens...</option></select>
+    <label for="ingredientName">Eller skriv ny ingrediens</label>
+    <input id="ingredientName" list="foodOptions" placeholder="Fx hakket oksekød 10%" />
 
-      <label for="ingredientName">Eller skriv ingrediens</label>
-      <input id="ingredientName" list="foodOptions" placeholder="Fx pasta kogt" />
+    <div class="row">
+      <div><label for="ingredientGrams">Gram i retten</label><input id="ingredientGrams" type="number" inputmode="decimal" placeholder="200" /></div>
+      <div><label for="ingredientKcal100">Kcal / 100 g</label><input id="ingredientKcal100" type="number" inputmode="decimal" placeholder="150" /></div>
+    </div>
+    <button onclick="addIngredient()">Tilføj ingrediens</button>
 
-      <div class="row">
-        <div>
-          <label for="ingredientGrams">Gram i retten</label>
-          <input id="ingredientGrams" type="number" inputmode="decimal" placeholder="200" />
-        </div>
-        <div>
-          <label for="ingredientKcal100">Kcal / 100 g</label>
-          <input id="ingredientKcal100" type="number" inputmode="decimal" placeholder="150" />
-        </div>
-      </div>
+    <div id="recipeIngredients"></div>
+    <div class="food-details" id="recipeResult" style="margin-top:12px;"></div>
 
-      <button onclick="addIngredient()">Tilføj ingrediens</button>
-      <div id="recipeIngredients"></div>
-      <div class="food-details" id="recipeResult" style="margin-top:12px;"></div>
-      <button onclick="saveRecipe()">Gem retten i madlisten</button>
-    </section>
+    <label for="recipeInstructions">Opskrift / kommentar</label>
+    <textarea id="recipeInstructions" placeholder="Skriv hvordan retten laves..."></textarea>
+    <button onclick="saveRecipe()">Gem retten</button>
+  </section>
 
-    <section class="card">
-      <h2>Madvarer i dag</h2>
-      <div id="foodList"></div>
-    </section>
-  </main>
+  <section class="card">
+    <h2>Gemte retter</h2>
+    <div id="savedRecipes"></div>
+  </section>
 
-  <script>
-    const DEFAULT_GOAL = 1800;
+  <section class="card">
+    <h2>Madvarer i dag</h2>
+    <div id="foodList"></div>
+  </section>
+</main>
 
-    const baseFoodDB = {
-      "rugbrød": 210,
-      "franskbrød": 265,
-      "havregryn": 370,
-      "cornflakes": 370,
-      "ris kogt": 130,
-      "ris ukogt": 360,
-      "pasta kogt": 150,
-      "pasta ukogt": 350,
-      "kartofler": 80,
-      "pommes frites": 310,
-      "kyllingebryst": 165,
-      "hakket oksekød 10%": 200,
-      "laks": 208,
-      "tun i vand": 110,
-      "æg": 155,
-      "mælk letmælk": 46,
-      "skyr naturel": 60,
-      "yoghurt naturel": 65,
-      "ost 45+": 350,
-      "smør": 720,
-      "olie": 900,
-      "banan": 89,
-      "æble": 52,
-      "appelsin": 47,
-      "jordbær": 32,
-      "blåbær": 57,
-      "gulerod": 41,
-      "agurk": 15,
-      "tomat": 18,
-      "broccoli": 35,
-      "avocado": 160,
-      "mandler": 575,
-      "peanuts": 567,
-      "chokolade": 535,
-      "chips": 530,
-      "pizza": 266,
-      "burger": 295,
-      "leverpostej": 280,
-      "spegepølse": 430,
-      "skinke": 115,
-      "makrel i tomat": 190
-    };
+<script>
+const DEFAULT_GOAL = 1800;
+const baseFoodDB = {
+  "rugbrød":210,"franskbrød":265,"havregryn":370,"cornflakes":370,"ris kogt":130,"ris ukogt":360,
+  "pasta kogt":150,"pasta ukogt":350,"kartofler":80,"pommes frites":310,"kyllingebryst":165,
+  "hakket oksekød 10%":200,"laks":208,"tun i vand":110,"æg":155,"mælk letmælk":46,"skyr naturel":60,
+  "yoghurt naturel":65,"ost 45+":350,"smør":720,"olie":900,"banan":89,"æble":52,"appelsin":47,
+  "jordbær":32,"blåbær":57,"gulerod":41,"agurk":15,"tomat":18,"broccoli":35,"avocado":160,
+  "mandler":575,"peanuts":567,"chokolade":535,"chips":530,"pizza":266,"burger":295,"leverpostej":280,
+  "spegepølse":430,"skinke":115,"makrel i tomat":190
+};
 
-    let foods = JSON.parse(localStorage.getItem('foods') || '[]');
-    let recipes = JSON.parse(localStorage.getItem('recipes') || '{}');
-    let recipeIngredients = [];
-    let goal = Number(localStorage.getItem('goal') || DEFAULT_GOAL);
+let foods = JSON.parse(localStorage.getItem('foods') || '[]');
+let customFoods = JSON.parse(localStorage.getItem('customFoods') || '{}');
+let recipes = JSON.parse(localStorage.getItem('recipes') || '{}');
+let recipeIngredients = [];
+let goal = Number(localStorage.getItem('goal') || DEFAULT_GOAL);
+let addType = 'food';
 
-    const today = new Date().toISOString().slice(0, 10);
-    const savedDate = localStorage.getItem('date');
-    if (savedDate !== today) {
-      foods = [];
-      localStorage.setItem('foods', JSON.stringify(foods));
-      localStorage.setItem('date', today);
-    }
+const today = new Date().toISOString().slice(0,10);
+if (localStorage.getItem('date') !== today) {
+  foods = [];
+  localStorage.setItem('foods', JSON.stringify(foods));
+  localStorage.setItem('date', today);
+}
 
-    const foodSelect = document.getElementById('foodSelect');
-    const ingredientSelect = document.getElementById('ingredientSelect');
-    const foodOptions = document.getElementById('foodOptions');
+function allFoodDB(){ return {...baseFoodDB, ...customFoods}; }
+function saveAll(){
+  localStorage.setItem('foods', JSON.stringify(foods));
+  localStorage.setItem('customFoods', JSON.stringify(customFoods));
+  localStorage.setItem('recipes', JSON.stringify(recipes));
+  localStorage.setItem('goal', goal);
+  localStorage.setItem('date', today);
+}
+function normalize(v){ return v.trim().toLowerCase(); }
 
-    function allFoods() {
-      return { ...baseFoodDB, ...recipes };
-    }
+function rebuildLists(){
+  const foodDB = allFoodDB();
+  foodSelect.innerHTML = '<option value="">Vælg madvare...</option>';
+  ingredientSelect.innerHTML = '<option value="">Vælg ingrediens...</option>';
+  foodOptions.innerHTML = '';
+  Object.keys(foodDB).sort().forEach(name => {
+    const label = `${name} — ${foodDB[name]} kcal/100 g`;
+    foodSelect.innerHTML += `<option value="${name}">${label}</option>`;
+    ingredientSelect.innerHTML += `<option value="${name}">${label}</option>`;
+    foodOptions.innerHTML += `<option value="${name}"></option>`;
+  });
+  recipeSelect.innerHTML = '<option value="">Vælg ret...</option>';
+  Object.keys(recipes).sort().forEach(name => {
+    recipeSelect.innerHTML += `<option value="${name}">${name} — ${recipes[name].kcal100} kcal/100 g</option>`;
+  });
+}
 
-    function rebuildFoodLists() {
-      const db = allFoods();
-      foodSelect.innerHTML = '<option value="">Vælg fra liste...</option>';
-      ingredientSelect.innerHTML = '<option value="">Vælg ingrediens...</option>';
-      foodOptions.innerHTML = '';
+function fillFoodKcal(name,input){ const db=allFoodDB(); const key=normalize(name); if(db[key]) input.value=db[key]; }
+function fillRecipeKcal(name){
+  const key=normalize(name);
+  if(recipes[key]){
+    kcal100.value = recipes[key].kcal100;
+    foodName.value = key;
+    selectedRecipeInfo.innerHTML = recipeInfoHTML(key);
+  }
+}
 
-      Object.keys(db).sort().forEach(name => {
-        const label = `${name} — ${db[name]} kcal/100 g`;
-        const o1 = document.createElement('option');
-        o1.value = name;
-        o1.textContent = label;
-        foodSelect.appendChild(o1);
+foodSelect.addEventListener('change',()=>{ foodName.value=foodSelect.value; fillFoodKcal(foodSelect.value,kcal100); });
+foodName.addEventListener('input',e=>fillFoodKcal(e.target.value,kcal100));
+ingredientSelect.addEventListener('change',()=>{ ingredientName.value=ingredientSelect.value; fillFoodKcal(ingredientSelect.value,ingredientKcal100); });
+ingredientName.addEventListener('input',e=>fillFoodKcal(e.target.value,ingredientKcal100));
+recipeSelect.addEventListener('change',()=>fillRecipeKcal(recipeSelect.value));
 
-        const o2 = document.createElement('option');
-        o2.value = name;
-        o2.textContent = label;
-        ingredientSelect.appendChild(o2);
+function showTab(tab){
+  foodSection.classList.toggle('hidden', tab!=='food');
+  recipeSection.classList.toggle('hidden', tab!=='recipe');
+  tabFood.classList.toggle('active', tab==='food');
+  tabRecipe.classList.toggle('active', tab==='recipe');
+}
+function setAddType(type){
+  addType=type;
+  addFoodBox.classList.toggle('hidden', type!=='food');
+  addRecipeBox.classList.toggle('hidden', type!=='recipe');
+  chooseFoodBtn.classList.toggle('active', type==='food');
+  chooseRecipeBtn.classList.toggle('active', type==='recipe');
+  foodName.value=''; foodSelect.value=''; recipeSelect.value=''; kcal100.value=''; selectedRecipeInfo.innerHTML='';
+}
+function saveGoal(){ const v=Number(goalInput.value); if(v<=0)return alert('Skriv et gyldigt mål.'); goal=v; saveAll(); render(); }
+function resetToday(){ if(confirm('Vil du nulstille dagens madvarer?')){ foods=[]; saveAll(); render(); } }
 
-        const d = document.createElement('option');
-        d.value = name;
-        foodOptions.appendChild(d);
-      });
-    }
+function addFood(){
+  let name = normalize(foodName.value);
+  const gramsVal = Number(grams.value);
+  const kcalVal = Number(kcal100.value);
+  if(addType==='recipe' && recipeSelect.value) name = normalize(recipeSelect.value);
+  if(!name || gramsVal<=0 || kcalVal<=0) return alert('Vælg/skriv mad eller ret, gram og kcal pr. 100 g.');
+  const kcal = Math.round(gramsVal*kcalVal/100);
+  foods.push({name, grams:gramsVal, kcal100:kcalVal, kcal});
+  saveAll(); render();
+  foodName.value=''; foodSelect.value=''; recipeSelect.value=''; grams.value=''; kcal100.value=''; selectedRecipeInfo.innerHTML='';
+}
+function deleteFood(i){ foods.splice(i,1); saveAll(); render(); }
 
-    function fillKcal(name, input) {
-      const key = name.trim().toLowerCase();
-      const db = allFoods();
-      if (db[key]) input.value = db[key];
-    }
-
-    foodSelect.addEventListener('change', () => {
-      document.getElementById('foodName').value = foodSelect.value;
-      fillKcal(foodSelect.value, document.getElementById('kcal100'));
-    });
-    document.getElementById('foodName').addEventListener('input', e => fillKcal(e.target.value, document.getElementById('kcal100')));
-
-    ingredientSelect.addEventListener('change', () => {
-      document.getElementById('ingredientName').value = ingredientSelect.value;
-      fillKcal(ingredientSelect.value, document.getElementById('ingredientKcal100'));
-    });
-    document.getElementById('ingredientName').addEventListener('input', e => fillKcal(e.target.value, document.getElementById('ingredientKcal100')));
-
-    function showTab(tab) {
-      document.getElementById('foodSection').classList.toggle('hidden', tab !== 'food');
-      document.getElementById('recipeSection').classList.toggle('hidden', tab !== 'recipe');
-      document.getElementById('tabFood').classList.toggle('active', tab === 'food');
-      document.getElementById('tabRecipe').classList.toggle('active', tab === 'recipe');
-    }
-
-    function saveAll() {
-      localStorage.setItem('foods', JSON.stringify(foods));
-      localStorage.setItem('recipes', JSON.stringify(recipes));
-      localStorage.setItem('goal', goal);
-      localStorage.setItem('date', today);
-    }
-
-    function saveGoal() {
-      const newGoal = Number(document.getElementById('goalInput').value);
-      if (newGoal <= 0) return alert('Skriv et gyldigt mål.');
-      goal = newGoal;
-      saveAll();
-      render();
-    }
-
-    function resetToday() {
-      if (!confirm('Vil du nulstille dagens madvarer?')) return;
-      foods = [];
-      saveAll();
-      render();
-    }
-
-    function addFood() {
-      const name = document.getElementById('foodName').value.trim();
-      const gramValue = Number(document.getElementById('grams').value);
-      const kcalPer100 = Number(document.getElementById('kcal100').value);
-
-      if (!name || gramValue <= 0 || kcalPer100 <= 0) return alert('Udfyld madvare, gram og kcal pr. 100 g.');
-
-      const kcal = Math.round((gramValue * kcalPer100) / 100);
-      foods.push({ name, grams: gramValue, kcal100: kcalPer100, kcal });
-      saveAll();
-      render();
-
-      document.getElementById('foodName').value = '';
-      foodSelect.value = '';
-      document.getElementById('grams').value = '';
-      document.getElementById('kcal100').value = '';
-    }
-
-    function deleteFood(index) {
-      foods.splice(index, 1);
-      saveAll();
-      render();
-    }
-
-    function addIngredient() {
-      const name = document.getElementById('ingredientName').value.trim();
-      const grams = Number(document.getElementById('ingredientGrams').value);
-      const kcal100 = Number(document.getElementById('ingredientKcal100').value);
-      if (!name || grams <= 0 || kcal100 <= 0) return alert('Udfyld ingrediens, gram og kcal pr. 100 g.');
-
-      const kcal = Math.round((grams * kcal100) / 100);
-      recipeIngredients.push({ name, grams, kcal100, kcal });
-
-      document.getElementById('ingredientName').value = '';
-      ingredientSelect.value = '';
-      document.getElementById('ingredientGrams').value = '';
-      document.getElementById('ingredientKcal100').value = '';
-      renderRecipe();
-    }
-
-    function deleteIngredient(index) {
-      recipeIngredients.splice(index, 1);
-      renderRecipe();
-    }
-
-    function getRecipeKcal100() {
-      const totalGrams = recipeIngredients.reduce((sum, i) => sum + i.grams, 0);
-      const totalKcal = recipeIngredients.reduce((sum, i) => sum + i.kcal, 0);
-      if (totalGrams <= 0) return 0;
-      return Math.round((totalKcal / totalGrams) * 100);
-    }
-
-    function renderRecipe() {
-      const box = document.getElementById('recipeIngredients');
-      box.innerHTML = '';
-
-      recipeIngredients.forEach((i, index) => {
-        const div = document.createElement('div');
-        div.className = 'recipe-line';
-        div.innerHTML = `
-          <div>
-            <div class="food-name">${i.name}</div>
-            <div class="food-details">${i.grams} g · ${i.kcal} kcal</div>
-          </div>
-          <button class="small delete" onclick="deleteIngredient(${index})">Slet</button>
-        `;
-        box.appendChild(div);
-      });
-
-      const totalGrams = recipeIngredients.reduce((sum, i) => sum + i.grams, 0);
-      const totalKcal = recipeIngredients.reduce((sum, i) => sum + i.kcal, 0);
-      document.getElementById('recipeResult').textContent = recipeIngredients.length
-        ? `Retten er ${totalGrams} g og ${totalKcal} kcal i alt. Det svarer til ${getRecipeKcal100()} kcal pr. 100 g.`
-        : 'Tilføj ingredienser for at beregne retten.';
-    }
-
-    function saveRecipe() {
-      const name = document.getElementById('recipeName').value.trim().toLowerCase();
-      if (!name) return alert('Skriv navn på retten.');
-      if (recipeIngredients.length === 0) return alert('Tilføj mindst én ingrediens.');
-
-      recipes[name] = getRecipeKcal100();
-      recipeIngredients = [];
-      document.getElementById('recipeName').value = '';
-      saveAll();
-      rebuildFoodLists();
-      renderRecipe();
-      alert('Retten er gemt i madlisten.');
-      showTab('food');
-    }
-
-    function render() {
-      document.getElementById('goalInput').value = goal;
-      document.getElementById('goalText').textContent = goal;
-      let total = 0;
-      const foodList = document.getElementById('foodList');
-      foodList.innerHTML = '';
-
-      if (foods.length === 0) foodList.innerHTML = '<div class="empty">Ingen madvarer endnu.</div>';
-
-      foods.forEach((food, index) => {
-        total += food.kcal;
-        const item = document.createElement('div');
-        item.className = 'food-item';
-        item.innerHTML = `
-          <div>
-            <div class="food-name">${food.name}</div>
-            <div class="food-details">${food.grams} g · ${food.kcal100} kcal/100 g</div>
-          </div>
-          <div style="text-align:right;">
-            <b>${food.kcal} kcal</b><br>
-            <button class="small delete" onclick="deleteFood(${index})">Slet</button>
-          </div>
-        `;
-        foodList.appendChild(item);
-      });
-
-      const left = goal - total;
-      const leftBox = document.getElementById('leftKcal');
-      document.getElementById('totalKcal').textContent = total;
-      document.getElementById('leftLabel').textContent = left >= 0 ? 'Tilbage i dag' : 'Over mål';
-      leftBox.textContent = Math.abs(left);
-      leftBox.className = left >= 0 ? 'ok' : 'over';
-    }
-
-    rebuildFoodLists();
-    renderRecipe();
-    render();
-  </script>
+function addIngredient(){
+  const name = normalize(ingredientName.value);
+  const g = Number(ingredientGrams.value);
+  const k100 = Number(ingredientKcal100.value);
+  if(!name || g<=0 || k100<=0) return alert('Udfyld ingrediens, gram og kcal pr. 100 g.');
+  const kcal = Math.round(g*k100/100);
+  recipeIngredients.push({name, grams:g, kcal100:k100, kcal});
+  if(!baseFoodDB[name] && !customFoods[name]) customFoods[name]=k100;
+  saveAll(); rebuildLists(); renderRecipe();
+  ingredientName.value=''; ingredientSelect.value=''; ingredientGrams.value=''; ingredientKcal100.value='';
+}
+function deleteIngredient(i){ recipeIngredients.splice(i,1); renderRecipe(); }
+function recipeKcal100(){
+  const g=recipeIngredients.reduce((s,i)=>s+i.grams,0), k=recipeIngredients.reduce((s,i)=>s+i.kcal,0);
+  return g>0 ? Math.round(k/g*100) : 0;
+}
+function renderRecipe(){
+  recipeIngredients.innerHTML='';
+  const box=document.getElementById('recipeIngredients'); box.innerHTML='';
+  recipeIngredients.forEach((i,idx)=> box.innerHTML += `<div class="recipe-line"><div><div class="food-name">${i.name}</div><div class="food-details">${i.grams} g · ${i.kcal} kcal</div></div><button class="small delete" onclick="deleteIngredient(${idx})">Slet</button></div>`);
+  const totalG=recipeIngredients.reduce((s,i)=>s+i.grams,0), totalK=recipeIngredients.reduce((s,i)=>s+i.kcal,0);
+  recipeResult.textContent = recipeIngredients.length ? `Retten er ${totalG} g og ${totalK} kcal i alt. Det svarer til ${recipeKcal100()} kcal pr. 100 g.` : 'Tilføj ingredienser for at beregne retten.';
+}
+function saveRecipe(){
+  const name = normalize(recipeName.value);
+  if(!name) return alert('Skriv navn på retten.');
+  if(recipeIngredients.length===0) return alert('Tilføj mindst én ingrediens.');
+  recipes[name] = { kcal100: recipeKcal100(), ingredients:[...recipeIngredients], instructions: recipeInstructions.value.trim() };
+  recipeIngredients=[]; recipeName.value=''; recipeInstructions.value='';
+  saveAll(); rebuildLists(); renderRecipe(); renderSavedRecipes(); alert('Retten er gemt under Retter.'); showTab('food'); setAddType('recipe');
+}
+function deleteRecipe(name){ if(confirm('Slet retten?')){ delete recipes[name]; saveAll(); rebuildLists(); renderSavedRecipes(); } }
+function recipeInfoHTML(name){
+  const r=recipes[name]; if(!r) return '';
+  const ing = r.ingredients.map(i=>`• ${i.name}: ${i.grams} g`).join('<br>');
+  const shopping = r.ingredients.map(i=>`☐ ${i.name} (${i.grams} g)`).join('<br>');
+  return `<b>${name}</b><br>${r.kcal100} kcal/100 g<br><br><b>Ingredienser:</b><br>${ing}<br><br><b>Indkøbsliste:</b><br>${shopping}<br><br><b>Opskrift:</b><br>${r.instructions || 'Ingen opskrift endnu.'}`;
+}
+function renderSavedRecipes(){
+  savedRecipes.innerHTML='';
+  const names=Object.keys(recipes).sort();
+  if(!names.length){ savedRecipes.innerHTML='<div class="empty">Ingen gemte retter endnu.</div>'; return; }
+  names.forEach(name=>{
+    savedRecipes.innerHTML += `<div class="food-item"><div><div class="food-name">${name}</div><div class="food-details">${recipes[name].kcal100} kcal/100 g<br>${recipeInfoHTML(name)}</div></div><button class="small delete" onclick="deleteRecipe('${name.replace(/'/g,"\\'")}')">Slet</button></div>`;
+  });
+}
+function render(){
+  goalInput.value=goal; goalText.textContent=goal;
+  let total=0; foodList.innerHTML='';
+  if(!foods.length) foodList.innerHTML='<div class="empty">Ingen madvarer endnu.</div>';
+  foods.forEach((f,i)=>{ total+=f.kcal; foodList.innerHTML += `<div class="food-item"><div><div class="food-name">${f.name}</div><div class="food-details">${f.grams} g · ${f.kcal100} kcal/100 g</div></div><div style="text-align:right;"><b>${f.kcal} kcal</b><br><button class="small delete" onclick="deleteFood(${i})">Slet</button></div></div>`; });
+  const left=goal-total; totalKcal.textContent=total; leftLabel.textContent=left>=0?'Tilbage i dag':'Over mål'; leftKcal.textContent=Math.abs(left); leftKcal.className=left>=0?'ok':'over';
+}
+rebuildLists(); renderRecipe(); renderSavedRecipes(); render();
+</script>
 </body>
 </html>
+
 
