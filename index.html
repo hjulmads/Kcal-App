@@ -93,8 +93,9 @@
       <label>Vælg madvare</label>
       <select id="foodSelect" onchange="selectFood()"></select>
       <label>Eller skriv ny madvare</label>
-      <input id="foodName" list="foodOptions" placeholder="fx rugbrød" oninput="autoFillFood()">
+      <input id="foodName" list="foodOptions" placeholder="fx rugbrød" oninput="autoFillFood();renderSmartFoodSuggestions('food')">
       <datalist id="foodOptions"></datalist>
+      <div id="foodSuggestions" class="details"></div>
     </div>
 
     <div id="recipeBox" class="hidden">
@@ -147,7 +148,8 @@
     <label>Ingrediens</label>
     <select id="ingredientSelect" onchange="selectIngredient()"></select>
     <label>Eller skriv ny ingrediens</label>
-    <input id="ingredientName" list="foodOptions" placeholder="fx hakket oksekød" oninput="autoFillIngredient()">
+    <input id="ingredientName" list="foodOptions" placeholder="fx hakket oksekød" oninput="autoFillIngredient();renderSmartFoodSuggestions('ingredient')">
+    <div id="ingredientSuggestions" class="details"></div>
 
     <div class="grid2">
       <input id="ingredientGrams" type="number" placeholder="Gram">
@@ -198,23 +200,12 @@
 
 <script>
 const baseFoods={
-  "rugbrød":{kcal:210,p:6,c:39,f:2},
-  "havregryn":{kcal:370,p:13,c:58,f:7},
-  "ris kogt":{kcal:130,p:3,c:28,f:0},
-  "pasta kogt":{kcal:150,p:5,c:30,f:1},
-  "kartofler":{kcal:80,p:2,c:17,f:0},
-  "kyllingebryst":{kcal:165,p:31,c:0,f:4},
-  "hakket oksekød 10%":{kcal:200,p:20,c:0,f:10},
-  "laks":{kcal:208,p:20,c:0,f:13},
-  "tun i vand":{kcal:110,p:25,c:0,f:1},
-  "æg":{kcal:155,p:13,c:1,f:11},
-  "skyr naturel":{kcal:60,p:11,c:4,f:0},
-  "banan":{kcal:89,p:1,c:23,f:0},
-  "æble":{kcal:52,p:0,c:14,f:0},
-  "broccoli":{kcal:35,p:3,c:7,f:0},
-  "avocado":{kcal:160,p:2,c:9,f:15},
-  "mandler":{kcal:575,p:21,c:22,f:49},
-  "chokolade":{kcal:535,p:7,c:57,f:30}
+  "rugbrød":{kcal:210,p:6,c:39,f:2},"franskbrød":{kcal:265,p:9,c:49,f:3},"havregryn":{kcal:370,p:13,c:58,f:7},"ris kogt":{kcal:130,p:3,c:28,f:0},"pasta kogt":{kcal:150,p:5,c:30,f:1},"kartoffel":{kcal:77,p:2,c:17,f:0.1},"sød kartoffel":{kcal:86,p:1.6,c:20,f:0.1},
+  "kyllingebryst":{kcal:165,p:31,c:0,f:4},"hakket oksekød 10%":{kcal:200,p:20,c:0,f:10},"laks":{kcal:208,p:20,c:0,f:13},"tun i vand":{kcal:110,p:25,c:0,f:1},"æg":{kcal:155,p:13,c:1,f:11},"skyr naturel":{kcal:60,p:11,c:4,f:0},
+  "agurk":{kcal:16,p:0.7,c:3.6,f:0.1},"aubergine":{kcal:25,p:1,c:6,f:0.2},"blomkål":{kcal:25,p:1.9,c:5,f:0.3},"broccoli":{kcal:34,p:2.8,c:7,f:0.4},"champignon":{kcal:22,p:3.1,c:3.3,f:0.3},"gulerod":{kcal:41,p:0.9,c:10,f:0.2},"grønkål":{kcal:49,p:4.3,c:9,f:0.9},"hvidkål":{kcal:25,p:1.3,c:6,f:0.1},"spidskål":{kcal:27,p:1.4,c:6,f:0.2},"iceberg":{kcal:14,p:0.9,c:3,f:0.1},"salat":{kcal:15,p:1.4,c:2.9,f:0.2},"løg":{kcal:40,p:1.1,c:9.3,f:0.1},"rødløg":{kcal:40,p:1.1,c:9.3,f:0.1},"hvidløg":{kcal:149,p:6.4,c:33,f:0.5},"porre":{kcal:61,p:1.5,c:14,f:0.3},"peberfrugt":{kcal:31,p:1,c:6,f:0.3},"radiser":{kcal:16,p:0.7,c:3.4,f:0.1},"rødbede":{kcal:43,p:1.6,c:10,f:0.2},"selleri":{kcal:16,p:0.7,c:3,f:0.2},"spinat":{kcal:23,p:2.9,c:3.6,f:0.4},"tomat":{kcal:18,p:0.9,c:3.9,f:0.2},"majs":{kcal:86,p:3.2,c:19,f:1.2},"ærter":{kcal:81,p:5.4,c:14,f:0.4},"squash":{kcal:17,p:1.2,c:3.1,f:0.3},"asparges":{kcal:20,p:2.2,c:3.9,f:0.1},"bønnespirer":{kcal:30,p:3,c:6,f:0.2},"grønne bønner":{kcal:31,p:1.8,c:7,f:0.1},
+  "æble":{kcal:52,p:0.3,c:14,f:0.2},"banan":{kcal:89,p:1.1,c:23,f:0.3},"appelsin":{kcal:47,p:0.9,c:12,f:0.1},"citron":{kcal:29,p:1.1,c:9,f:0.3},"lime":{kcal:30,p:0.7,c:11,f:0.2},"pære":{kcal:57,p:0.4,c:15,f:0.1},"fersken":{kcal:39,p:0.9,c:10,f:0.3},"nektarin":{kcal:44,p:1.1,c:11,f:0.3},"blomme":{kcal:46,p:0.7,c:11,f:0.3},"jordbær":{kcal:32,p:0.7,c:8,f:0.3},"hindbær":{kcal:52,p:1.2,c:12,f:0.7},"blåbær":{kcal:57,p:0.7,c:14,f:0.3},"vindruer":{kcal:69,p:0.6,c:18,f:0.2},"ananas":{kcal:50,p:0.5,c:13,f:0.1},"mango":{kcal:60,p:0.8,c:15,f:0.4},"kiwi":{kcal:61,p:1.1,c:15,f:0.5},"melon":{kcal:34,p:0.8,c:8,f:0.2},"vandmelon":{kcal:30,p:0.6,c:8,f:0.2},"avocado":{kcal:160,p:2,c:9,f:15},
+  "smør":{kcal:717,p:0.9,c:0.1,f:81},"smørbar":{kcal:540,p:0.5,c:1,f:60},"margarine":{kcal:720,p:0,c:0,f:80},"olivenolie":{kcal:884,p:0,c:0,f:100},"rapsolie":{kcal:884,p:0,c:0,f:100},"solsikkeolie":{kcal:884,p:0,c:0,f:100},"kokosolie":{kcal:862,p:0,c:0,f:100},
+  "mandler":{kcal:575,p:21,c:22,f:49},"valnødder":{kcal:654,p:15,c:14,f:65},"cashewnødder":{kcal:553,p:18,c:30,f:44},"peanuts":{kcal:567,p:26,c:16,f:49},"chokolade":{kcal:535,p:7,c:57,f:30}
 };
 
 let customFoods=JSON.parse(localStorage.getItem('customFoods')||'{}');
@@ -275,10 +266,47 @@ function fillInputs(prefix,m){
     document.getElementById(prefix+'Fat100').value=m.f||0;
   }
 }
-function selectFood(){const m=allFoods()[foodSelect.value];if(m){foodName.value=foodSelect.value;fillInputs('',m)}}
+function selectFood(){const m=allFoods()[foodSelect.value];if(m){foodName.value=foodSelect.value;fillInputs('',m);foodSuggestions.innerHTML=''}}
 function autoFillFood(){const m=allFoods()[n(foodName.value)];if(m)fillInputs('',m)}
-function selectIngredient(){const m=allFoods()[ingredientSelect.value];if(m){ingredientName.value=ingredientSelect.value;fillInputs('ingredient',m)}}
+function selectIngredient(){const m=allFoods()[ingredientSelect.value];if(m){ingredientName.value=ingredientSelect.value;fillInputs('ingredient',m);ingredientSuggestions.innerHTML=''}}
 function autoFillIngredient(){const m=allFoods()[n(ingredientName.value)];if(m)fillInputs('ingredient',m)}
+
+function similarityScore(name, query){
+  if(!query)return 0;
+  if(name===query)return 100;
+  if(name.startsWith(query))return 80;
+  if(name.includes(query))return 60;
+  let score=0;
+  for(const ch of query){if(name.includes(ch))score+=2;}
+  return score;
+}
+
+function renderSmartFoodSuggestions(type){
+  const input=type==='food'?foodName:ingredientName;
+  const box=type==='food'?foodSuggestions:ingredientSuggestions;
+  const query=n(input.value);
+  if(query.length<2){box.innerHTML='';return;}
+  const matches=Object.keys(allFoods())
+    .map(name=>({name,score:similarityScore(name,query),m:allFoods()[name]}))
+    .filter(x=>x.score>0)
+    .sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name))
+    .slice(0,8);
+  if(!matches.length){box.innerHTML='<div class="muted">Ingen forslag fundet.</div>';return;}
+  box.innerHTML=matches.map(x=>`<button class="secondary" style="margin-top:8px;text-align:left" onclick="chooseSmartSuggestion('${type}','${x.name.replace(/'/g,"\'")}')">${x.name} — ${x.m.kcal} kcal/100 g</button>`).join('');
+}
+
+function chooseSmartSuggestion(type,name){
+  const m=allFoods()[name];
+  if(type==='food'){
+    foodName.value=name;
+    fillInputs('',m);
+    foodSuggestions.innerHTML='';
+  }else{
+    ingredientName.value=name;
+    fillInputs('ingredient',m);
+    ingredientSuggestions.innerHTML='';
+  }
+}
 function selectRecipe(){
   const r=recipes[recipeSelect.value];
   if(r){foodName.value=recipeSelect.value;kcal100.value=r.kcal;protein100.value=r.p;carbs100.value=r.c;fat100.value=r.f;recipePreview.innerHTML=recipeHTML(recipeSelect.value)}
